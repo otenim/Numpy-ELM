@@ -58,13 +58,11 @@ class ELM(object):
         self.__loss = self.__get_loss_function(loss)
 
     def __call__(self, x):
-        if len(x) == 1:
-            x = np.expand_dims(x, axis=0)
         h = self.__activation(x.dot(self.__alpha) + self.__bias)
         return h.dot(self.__beta)
 
     def predict(self, x):
-        return self(x)
+        return list(self(x))
 
     def evaluate(self, x, t, metrics=['loss']):
         y_pred = self.predict(x)
@@ -89,10 +87,6 @@ class ELM(object):
 
 
     def fit(self, x, t):
-        if len(x) == 1:
-            x = np.expand_dims(x, axis=0)
-        if len(t) == 1:
-            t = np.expand_dims(t, axis=0)
         H = self.__activation(x.dot(self.__alpha) + self.__bias)
 
         # compute a pseudoinverse of H

@@ -16,6 +16,12 @@ parser.add_argument('--activation',
     default='sigmoid',
 )
 
+def softmax(x):
+    c = np.max(x, axis=-1)
+    upper = np.exp(x - c)
+    lower = np.sum(upper, axis=-1)
+    return upper / lower
+
 def main(args):
     # ===============================
     # Load dataset
@@ -59,6 +65,23 @@ def main(args):
     val_loss, val_acc = model.evaluate(x_test, t_test, metrics=['loss', 'accuracy'])
     print('val_loss: %f' % val_loss)
     print('val_acc: %f' % val_acc)
+
+    # ===============================
+    # Prediction
+    # ===============================
+    x = x_test[:10]
+    t = t_test[:10]
+    y = softmax(model.predict(x))
+
+    for i in range(len(y)):
+        print('---------- prediction %d ----------' % (i+1))
+        class_pred = np.argmax(y[i])
+        prob_pred = y[i][class_pred]
+        class_true = np.argmax(t[i])
+        print('prediction:')
+        print('\tclass: %d, probability: %f' % (class_pred, prob_pred))
+        print('\tclass (true): %d' % class_true)
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
