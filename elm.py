@@ -15,7 +15,7 @@ def _identity(x):
 
 class ELM(object):
 
-    def __init(
+    def __init__(
         self, n_input_nodes, n_hidden_nodes, n_output_nodes,
         activation='sigmoid', loss='mean_squared_error', name=None,
         beta_init=None, alpha_init=None, bias_init=None):
@@ -33,7 +33,7 @@ class ELM(object):
                 )
             self.__beta = beta_init
         else:
-            self.__beta = np.random.uniform(0.,1.,size=(self.__n_hidden_nodes, self.__n_output_nodes))
+            self.__beta = np.random.uniform(-1.,1.,size=(self.__n_hidden_nodes, self.__n_output_nodes))
         if alpha_init:
             if alpha_init.shape != (self.__n_input_nodes, self.__n_hidden_nodes):
                 raise ValueError(
@@ -41,7 +41,7 @@ class ELM(object):
                 )
             self.__alpha = alpha_init
         else:
-            self.__alpha = np.random.uniform(0.,1.,size=(self.__n_input_nodes, self.__n_hidden_nodes))
+            self.__alpha = np.random.uniform(-1.,1.,size=(self.__n_input_nodes, self.__n_hidden_nodes))
         if bias_init:
             if bias_init.shape != (self.__n_hidden_nodes,):
                 raise ValueError(
@@ -49,7 +49,7 @@ class ELM(object):
                 )
             self.__bias = bias_init
         else:
-            self.__bias = np.random.uniform(0.,1.,size=(self.__n_hidden_nodes,))
+            self.__bias = np.zeros(shape=(self.__n_hidden_nodes,))
 
         # set an activation function
         self.__activation = self.__get_activation_function(activation)
@@ -75,12 +75,16 @@ class ELM(object):
                 loss = self.__loss(y_true, y_pred)
                 ret.append(loss)
             elif m == 'accuracy':
-                acc = np.sum(np.argmax(y_pred, axis=-1) == t) / len(t)
+                acc = np.sum(np.argmax(y_pred, axis=-1) == np.argmax(t, axis=-1)) / len(t)
                 ret.append(acc)
             else:
                 raise ValueError(
                     'an unknown evaluation indicator \'%s\'.' % m
                 )
+        if len(ret) == 1:
+            ret = ret[0]
+        elif len(ret) == 0:
+            ret = None
         return ret
 
 
@@ -108,7 +112,7 @@ class ELM(object):
             f.create_dataset('weights/beta', data=self.__beta)
             f.create_dataset('weigts/bias', data=self.__bias)
 
-    def __get_activation_function(name):
+    def __get_activation_function(self, name):
         if name == 'sigmoid':
             return _sigmoid
         elif name == 'identity':
@@ -118,13 +122,13 @@ class ELM(object):
                 'an unknown activation function \'%s\'.' % name
             )
 
-    def __get_activation_name(activation):
+    def __get_activation_name(self, activation):
         if activation == _sigmoid:
             return 'sigmoid'
         elif activation == _identity:
             return 'identity'
 
-    def __get_loss_function(name):
+    def __get_loss_function(self, name):
         if name == 'mean_squared_error':
             return _mean_squared_error
         elif name == 'mean_absolute_error':
@@ -134,7 +138,7 @@ class ELM(object):
                 'an unknown loss function \'%s\'.' % name
             )
 
-    def __get_loss_name(loss):
+    def __get_loss_name(self, loss):
         if loss == _mean_squared_error:
             return 'mean_squared_error'
         elif loss == _mean_absolute_error:
