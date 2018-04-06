@@ -6,7 +6,7 @@
     <img src="https://i.imgur.com/GckJu86.png" width=600>
 </div>
 
-In this repository, we provide a numpy implementation of Extreme Learning Machine (ELM)
+In this repository, we provide a keras-like numpy implementation of Extreme Learning Machine (ELM)
 introduced by Huang et al. in this [paper](http://ieeexplore.ieee.org/document/1380068/?reload=true).
 
 ELM is a neural-network-based new learning schieme which can learn fast.
@@ -34,7 +34,7 @@ All the above libraries can be installed in the following command.
 
 ## Usage
 
-Here, we show how to train a OS-ELM module and predict on it.
+Here, we show how to train an ELM model and predict on it.
 For the sake of simplicity, we assume to train the model on MNIST, a
 hand-written digits dataset.
 
@@ -154,11 +154,20 @@ and the hidden nodes. It reduces the computational cost by half.
 computing a pseudoinverse.
 * The computational complexity for the matrix inversion is about O(batch_size^2 \* n_hidden_nodes),
 so take care for the cost when you increase batch\_size.
+
 ## Demo
 
 You can execute the above sample code with the following command.
 
-`$ python train.py`
+`$ python train.py [--n_hidden_nodes] [--activation] [--loss]`
+
+* `--n_hidden_nodes`: (optional) the number of hidden nodes (default: 1024).
+* `--activation`: (optional) an activation function applied to the hidden nodes.
+we currently support `sigmoid` and `identity` (default: sigmoid).
+* `--loss`: (optional) a loss function applied to the output nodes.
+we currently support `mean_squared_error` and 'mean_absolute_error' (default: mean_squared_error).
+
+ex) `$ python train.py --n_hidden_nodes 2048 --activation sigmoid --loss mean_absolute_error`
 
 ## Todos
 
