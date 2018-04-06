@@ -140,6 +140,14 @@ class ELM(object):
             return 'mean_absolute_error'
 
     @property
+    def weights(self):
+        return {
+            'alpha': self.__alpha,
+            'beta': self.__beta,
+            'bias': self.__bias,
+        }
+
+    @property
     def input_shape(self):
         return (self.__n_input_nodes,)
 
