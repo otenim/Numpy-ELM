@@ -1,4 +1,5 @@
 import numpy as np
+import h5py
 
 def _mean_squared_error(y_true, y_pred):
     return 0.5 * np.mean((y_true - y_pred)**2)
@@ -51,24 +52,10 @@ class ELM(object):
             self.__bias = np.random.uniform(0.,1.,size=(self.__n_hidden_nodes,))
 
         # set an activation function
-        if activation == 'sigmoid':
-            self.__activation = _sigmoid
-        elif activation == 'identity':
-            self.__activation = _identity
-        else:
-            raise ValueError(
-                'an unknown activation function \'%s\'.' % activation
-            )
+        self.__activation = self.__get_activation_function(activation)
 
         # set a loss function
-        if loss == 'mean_squared_error':
-            self.__loss = _mean_squared_error
-        elif activation == 'mean_absolute_error':
-            self.__loss = _mean_absolute_error
-        else:
-            raise ValueError(
-                'an unknown loss function \'%s\'.' % loss
-            )
+        self.__loss = self.__get_loss_function(loss)
 
     def __call__(self, x):
         if len(x) == 1:
@@ -78,6 +65,24 @@ class ELM(object):
 
     def predict(self, x):
         return self(x)
+
+    def evaluate(self, x, t, metrics=['loss']):
+        y_pred = self.predict(x)
+        y_true = t
+        ret = []
+        for m in metrics:
+            if m == 'loss':
+                loss = self.__loss(y_true, y_pred)
+                ret.append(loss)
+            elif m == 'accuracy':
+                acc = np.sum(np.argmax(y_pred, axis=-1) == t) / len(t)
+                ret.append(acc)
+            else:
+                raise ValueError(
+                    'an unknown evaluation indicator \'%s\'.' % m
+                )
+        return ret
+
 
     def fit(self, x, t):
         if len(x) == 1:
@@ -91,6 +96,48 @@ class ELM(object):
 
         # update beta
         self.__beta = H_pinv.dot(t)
+
+    def save(self, filepath):
+        with h5py.File(filepath, 'w') as f:
+            arc = f.create_dataset('architecture', data=np.array([self.__n_input_nodes, self.__n_hidden_nodes, self.__n_output_nodes]))
+            arc.attrs['activation'] = self.__get_activation_name(self.__activation).encode('utf-8')
+            arc.attrs['loss'] = self.__get_loss_name(self.__loss).encode('utf-8')
+            f.create_group('weights')
+            f.create_dataset('weights/alpha', data=self.__alpha)
+            f.create_dataset('weights/beta', data=self.__beta)
+            f.create_dataset('weigts/bias', data=self.__bias)
+
+    def __get_activation_function(name):
+        if name == 'sigmoid':
+            return _sigmoid
+        elif name == 'identity':
+            return _identity
+        else:
+            raise ValueError(
+                'an unknown activation function \'%s\'.' % name
+            )
+
+    def __get_activation_name(activation):
+        if activation == _sigmoid:
+            return 'sigmoid'
+        elif activation == _identity:
+            return 'identity'
+
+    def __get_loss_function(name):
+        if name == 'mean_squared_error':
+            return _mean_squared_error
+        elif name == 'mean_absolute_error':
+            return _mean_absolute_error
+        else:
+            raise ValueError(
+                'an unknown loss function \'%s\'.' % name
+            )
+
+    def __get_loss_name(loss):
+        if loss == _mean_squared_error:
+            return 'mean_squared_error'
+        elif loss == _mean_absolute_error:
+            return 'mean_absolute_error'
 
     @property
     def input_shape(self):
@@ -114,14 +161,31 @@ class ELM(object):
 
     @property
     def activation(self):
-        if self.__activation == _sigmoid:
-            return 'sigmoid'
-        elif self.__activation == _identity:
-            return 'identity'
+        return __get_activation_name(self.__activation)
 
     @property
     def loss(self):
-        if self.__loss == _mean_squared_error:
-            return 'mean_squared_error'
-        elif self.__loss == _mean_absolute_error:
-            return 'mean_absolute_error'
+        return __get_loss_name(self.__loss)
+
+def load_model(filepath):
+    with h5py.File(filepath, 'r') as f:
+        alpha_init = f['weights/alpha'][...]
+        beta_init = f['weights/beta'][...]
+        bias_init = f['weights/bias'][...]
+        arc = f['architecture']
+        n_input_nodes = arc[0]
+        n_hidden_nodes = arc[1]
+        n_output_nodes = arc[2]
+        activation = arc.attrs['activation'].decode('utf-8')
+        loss = arc.attrs['loss'].decode('utf-8')
+        model = ELM(
+            n_input_nodes=n_input_nodes,
+            n_hidden_nodes=n_hidden_nodes,
+            n_output_nodes=n_output_nodes,
+            activation=activation,
+            loss=loss,
+            alpha_init=alpha_init,
+            beta_init=beta_init,
+            bias_init=bias_init,
+        )
+    return model
