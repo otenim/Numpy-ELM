@@ -26,7 +26,7 @@ class ELM(object):
         self.__n_output_nodes = n_output_nodes
 
         # initialize weights and a bias
-        if beta_init != None:
+        if isinstance(beta_init, np.ndarray):
             if beta_init.shape != (self.__n_hidden_nodes, self.__n_output_nodes):
                 raise ValueError(
                     'the shape of beta_init is expected to be %s.' % (self.__n_hidden_nodes, self.__n_output_nodes)
@@ -34,7 +34,7 @@ class ELM(object):
             self.__beta = beta_init
         else:
             self.__beta = np.random.uniform(-1.,1.,size=(self.__n_hidden_nodes, self.__n_output_nodes))
-        if alpha_init != None:
+        if isinstance(alpha_init, np.ndarray):
             if alpha_init.shape != (self.__n_input_nodes, self.__n_hidden_nodes):
                 raise ValueError(
                     'the shape of alpha_init is expected to be %s.' % (self.__n_hidden_nodes, self.__n_output_nodes)
@@ -42,7 +42,7 @@ class ELM(object):
             self.__alpha = alpha_init
         else:
             self.__alpha = np.random.uniform(-1.,1.,size=(self.__n_input_nodes, self.__n_hidden_nodes))
-        if bias_init != None:
+        if isinstance(bias_init, np.ndarray):
             if bias_init.shape != (self.__n_hidden_nodes,):
                 raise ValueError(
                     'the shape of bias_init is expected to be %s.' % (self.__n_hidden_nodes,)
