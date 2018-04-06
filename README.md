@@ -123,6 +123,19 @@ def main(args):
         print('\tclass: %d, probability: %f' % (class_pred, prob_pred))
         print('\tclass (true): %d' % class_true)
 
+    # ===============================
+    # Save model
+    # ===============================
+    print('saving model...')
+    model.save('model.h5')
+    del model
+
+    # ===============================
+    # Load model
+    # ===============================
+    print('loading model...')
+    model = load_model('model.h5')
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -131,31 +144,21 @@ if __name__ == '__main__':
 
 ## Notes
 
-The following figure shows OS-ELM training formula.  
-
-<div align="center">
-    <img src="https://i.imgur.com/QjqaMcS.png" width=600>
-</div>
-
-
-* **important**: Since matrix inversion in OS-ELM update formula has a lot of conditional operations, even if it is executed on GPUs, the training is not necessarily accelerated.
-* In OS-ELM, you can apply an activation function only to the hidden nodes.
-* OS-ELM always finds the global optimal solution for the weight matrices at every training.
-* If you feed all the training samples to OS-ELM in the initial training phase,
-the computational procedures will be exactly the same as ELM. So, we can consider ELM is a special case of OS-ELM.
-* OS-ELM does not need to train iteratively on the same data samples,
+* In ELM, you can apply an activation function only to the hidden nodes.
+* ELM always finds the global optimal solution for the weight matrices at every training.
+* ELM does not need to train iteratively on the same data samples,
 while backpropagation-based models usually need to do that.
-* OS-ELM does not update 'alpha', the weight matrix connecting the input nodes
-and the hidden nodes. It makes OS-ELM train faster.
-* OS-ELM does not need to compute gradients. The weight matrices are trained by
-computing some matrix products and a matrix inversion.
-* The computational complexity for the matrix inversion is about O(batch\_size^3),
+* ELM does not update 'alpha', the weight matrix connecting the input nodes
+and the hidden nodes. It reduces the computational cost by half.
+* ELM does not need to compute gradients. The weight matrices are trained by
+computing a pseudoinverse.
+* The computational complexity for the matrix inversion is about O(batch_size^2 \* n_hidden_nodes),
 so take care for the cost when you increase batch\_size.
 ## Demo
 
 You can execute the above sample code with the following command.
 
-`$ python train_mnist.py`
+`$ python train.py`
 
 ## Todos
 
