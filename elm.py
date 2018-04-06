@@ -26,7 +26,7 @@ class ELM(object):
         self.__n_output_nodes = n_output_nodes
 
         # initialize weights and a bias
-        if beta_init:
+        if beta_init != None:
             if beta_init.shape != (self.__n_hidden_nodes, self.__n_output_nodes):
                 raise ValueError(
                     'the shape of beta_init is expected to be %s.' % (self.__n_hidden_nodes, self.__n_output_nodes)
@@ -34,7 +34,7 @@ class ELM(object):
             self.__beta = beta_init
         else:
             self.__beta = np.random.uniform(-1.,1.,size=(self.__n_hidden_nodes, self.__n_output_nodes))
-        if alpha_init:
+        if alpha_init != None:
             if alpha_init.shape != (self.__n_input_nodes, self.__n_hidden_nodes):
                 raise ValueError(
                     'the shape of alpha_init is expected to be %s.' % (self.__n_hidden_nodes, self.__n_output_nodes)
@@ -42,7 +42,7 @@ class ELM(object):
             self.__alpha = alpha_init
         else:
             self.__alpha = np.random.uniform(-1.,1.,size=(self.__n_input_nodes, self.__n_hidden_nodes))
-        if bias_init:
+        if bias_init != None:
             if bias_init.shape != (self.__n_hidden_nodes,):
                 raise ValueError(
                     'the shape of bias_init is expected to be %s.' % (self.__n_hidden_nodes,)
@@ -104,7 +104,7 @@ class ELM(object):
             f.create_group('weights')
             f.create_dataset('weights/alpha', data=self.__alpha)
             f.create_dataset('weights/beta', data=self.__beta)
-            f.create_dataset('weigts/bias', data=self.__bias)
+            f.create_dataset('weights/bias', data=self.__bias)
 
     def __get_activation_function(self, name):
         if name == 'sigmoid':

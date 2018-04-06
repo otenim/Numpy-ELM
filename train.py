@@ -82,6 +82,22 @@ def main(args):
         print('\tclass: %d, probability: %f' % (class_pred, prob_pred))
         print('\tclass (true): %d' % class_true)
 
+    # ===============================
+    # Save model
+    # ===============================
+    print('saving model...')
+    model.save('model.h5')
+    del model
+
+    # ===============================
+    # Load model
+    # ===============================
+    print('loading model...')
+    model = load_model('model.h5')
+    val_loss, val_acc = model.evaluate(x_test, t_test, metrics=['loss', 'accuracy'])
+    print('val_loss: %f' % val_loss)
+    print('val_acc: %f' % val_acc)
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
