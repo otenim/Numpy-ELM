@@ -102,6 +102,7 @@ class ELM(object):
             arc = f.create_dataset('architecture', data=np.array([self.__n_input_nodes, self.__n_hidden_nodes, self.__n_output_nodes]))
             arc.attrs['activation'] = self.__get_activation_name(self.__activation).encode('utf-8')
             arc.attrs['loss'] = self.__get_loss_name(self.__loss).encode('utf-8')
+            arc.attrs['name'] = self.name.encode('utf-8')
             f.create_group('weights')
             f.create_dataset('weights/alpha', data=self.__alpha)
             f.create_dataset('weights/beta', data=self.__beta)
@@ -186,6 +187,7 @@ def load_model(filepath):
         n_output_nodes = arc[2]
         activation = arc.attrs['activation'].decode('utf-8')
         loss = arc.attrs['loss'].decode('utf-8')
+        name = arc.attrs['name'].decode('utf-8')
         model = ELM(
             n_input_nodes=n_input_nodes,
             n_hidden_nodes=n_hidden_nodes,
@@ -195,5 +197,6 @@ def load_model(filepath):
             alpha_init=alpha_init,
             beta_init=beta_init,
             bias_init=bias_init,
+            name=name,
         )
     return model
