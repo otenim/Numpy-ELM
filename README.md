@@ -152,7 +152,7 @@ while backpropagation-based models usually need to do that.
 and the hidden nodes. It reduces the computational cost by half.
 * ELM does not need to compute gradients. The weight matrices are trained by
 computing a pseudoinverse.
-* The computational complexity for the matrix inversion is about O(batch_size^2 \* n_hidden_nodes),
+* The computational complexity for the matrix inversion is about O(batch\_size^3 \* n\_hidden\_nodes),
 so take care for the cost when you increase batch\_size.
 
 ## Demo
