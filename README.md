@@ -3,7 +3,7 @@
 ## Overview
 
 <div align="center">
-    <img src="https://i.imgur.com/GckJu86.png" width=600>
+    <img src="https://i.imgur.com/YdgQOlH.png" width=600>
 </div>
 
 In this repository, we provide a keras-like numpy implementation of Extreme Learning Machine (ELM)
