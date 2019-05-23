@@ -15,6 +15,42 @@ def _identity(x):
 
 class ELM(object):
 
+    @property
+    def weights(self):
+        return {
+            'alpha': self.__alpha,
+            'beta': self.__beta,
+            'bias': self.__bias,
+        }
+
+    @property
+    def input_shape(self):
+        return (self.__n_input_nodes,)
+
+    @property
+    def output_shape(self):
+        return (self.__n_output_nodes,)
+
+    @property
+    def n_input_nodes(self):
+        return self.__n_input_nodes
+
+    @property
+    def n_hidden_nodes(self):
+        return self.__n_hidden_nodes
+
+    @property
+    def n_output_nodes(self):
+        return self.__n_output_nodes
+
+    @property
+    def activation(self):
+        return self.__get_activation_name(self.__activation)
+
+    @property
+    def loss(self):
+        return self.__get_loss_name(self.__loss)
+
     def __init__(
         self, n_input_nodes, n_hidden_nodes, n_output_nodes,
         activation='sigmoid', loss='mean_squared_error', name=None,
@@ -29,7 +65,7 @@ class ELM(object):
         if isinstance(beta_init, np.ndarray):
             if beta_init.shape != (self.__n_hidden_nodes, self.__n_output_nodes):
                 raise ValueError(
-                    'the shape of beta_init is expected to be %s.' % (self.__n_hidden_nodes, self.__n_output_nodes)
+                    'the shape of beta_init is expected to be (%d,%d).' % (self.__n_hidden_nodes, self.__n_output_nodes)
                 )
             self.__beta = beta_init
         else:
@@ -37,7 +73,7 @@ class ELM(object):
         if isinstance(alpha_init, np.ndarray):
             if alpha_init.shape != (self.__n_input_nodes, self.__n_hidden_nodes):
                 raise ValueError(
-                    'the shape of alpha_init is expected to be %s.' % (self.__n_hidden_nodes, self.__n_output_nodes)
+                    'the shape of alpha_init is expected to be (%d,%d).' % (self.__n_hidden_nodes, self.__n_output_nodes)
                 )
             self.__alpha = alpha_init
         else:
@@ -45,7 +81,7 @@ class ELM(object):
         if isinstance(bias_init, np.ndarray):
             if bias_init.shape != (self.__n_hidden_nodes,):
                 raise ValueError(
-                    'the shape of bias_init is expected to be %s.' % (self.__n_hidden_nodes,)
+                    'the shape of bias_init is expected to be (%d,).' % (self.__n_hidden_nodes,)
                 )
             self.__bias = bias_init
         else:
@@ -138,41 +174,6 @@ class ELM(object):
         elif loss == _mean_absolute_error:
             return 'mean_absolute_error'
 
-    @property
-    def weights(self):
-        return {
-            'alpha': self.__alpha,
-            'beta': self.__beta,
-            'bias': self.__bias,
-        }
-
-    @property
-    def input_shape(self):
-        return (self.__n_input_nodes,)
-
-    @property
-    def output_shape(self):
-        return (self.__n_output_nodes,)
-
-    @property
-    def n_input_nodes(self):
-        return self.__n_input_nodes
-
-    @property
-    def n_hidden_nodes(self):
-        return self.__n_hidden_nodes
-
-    @property
-    def n_output_nodes(self):
-        return self.__n_output_nodes
-
-    @property
-    def activation(self):
-        return __get_activation_name(self.__activation)
-
-    @property
-    def loss(self):
-        return __get_loss_name(self.__loss)
 
 def load_model(filepath):
     with h5py.File(filepath, 'r') as f:
