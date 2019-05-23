@@ -14,43 +14,6 @@ def _identity(x):
     return x
 
 class ELM(object):
-
-    @property
-    def weights(self):
-        return {
-            'alpha': self.__alpha,
-            'beta': self.__beta,
-            'bias': self.__bias,
-        }
-
-    @property
-    def input_shape(self):
-        return (self.__n_input_nodes,)
-
-    @property
-    def output_shape(self):
-        return (self.__n_output_nodes,)
-
-    @property
-    def n_input_nodes(self):
-        return self.__n_input_nodes
-
-    @property
-    def n_hidden_nodes(self):
-        return self.__n_hidden_nodes
-
-    @property
-    def n_output_nodes(self):
-        return self.__n_output_nodes
-
-    @property
-    def activation(self):
-        return self.__get_activation_name(self.__activation)
-
-    @property
-    def loss(self):
-        return self.__get_loss_name(self.__loss)
-
     def __init__(
         self, n_input_nodes, n_hidden_nodes, n_output_nodes,
         activation='sigmoid', loss='mean_squared_error', name=None,
@@ -103,14 +66,25 @@ class ELM(object):
     def evaluate(self, x, t, metrics=['loss']):
         y_pred = self.predict(x)
         y_true = t
+        y_pred_argmax = np.argmax(y_pred, axis=-1)
+        y_true_argmax = np.argmax(y_true, axis=-1)
         ret = []
         for m in metrics:
             if m == 'loss':
                 loss = self.__loss(y_true, y_pred)
                 ret.append(loss)
             elif m == 'accuracy':
-                acc = np.sum(np.argmax(y_pred, axis=-1) == np.argmax(t, axis=-1)) / len(t)
+                acc = np.sum(y_pred_argmax == y_true_argmax) / len(t)
                 ret.append(acc)
+            elif m == 'uar':
+                num_classes = len(t[0])
+                uar = []
+                for i in range(num_classes):
+                    tp = np.sum((y_pred_argmax == i) & (y_true_argmax == i))
+                    tp_fn = np.sum(y_true_argmax == i)
+                    uar.append(tp / tp_fn)
+                uar = np.mean(uar)
+                ret.append(uar)
             else:
                 raise ValueError(
                     'an unknown evaluation indicator \'%s\'.' % m
@@ -173,7 +147,42 @@ class ELM(object):
             return 'mean_squared_error'
         elif loss == _mean_absolute_error:
             return 'mean_absolute_error'
+    
+    @property
+    def weights(self):
+        return {
+            'alpha': self.__alpha,
+            'beta': self.__beta,
+            'bias': self.__bias,
+        }
 
+    @property
+    def input_shape(self):
+        return (self.__n_input_nodes,)
+
+    @property
+    def output_shape(self):
+        return (self.__n_output_nodes,)
+
+    @property
+    def n_input_nodes(self):
+        return self.__n_input_nodes
+
+    @property
+    def n_hidden_nodes(self):
+        return self.__n_hidden_nodes
+
+    @property
+    def n_output_nodes(self):
+        return self.__n_output_nodes
+
+    @property
+    def activation(self):
+        return self.__get_activation_name(self.__activation)
+
+    @property
+    def loss(self):
+        return self.__get_loss_name(self.__loss)
 
 def load_model(filepath):
     with h5py.File(filepath, 'r') as f:
