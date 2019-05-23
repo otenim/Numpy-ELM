@@ -55,16 +55,18 @@ def main(args):
     # Training
     # ===============================
     model.fit(x_train, t_train)
-    train_loss, train_acc = model.evaluate(x_train, t_train, metrics=['loss', 'accuracy'])
-    print('train_loss: %f' % train_loss)
-    print('train_acc: %f' % train_acc)
+    train_loss, train_acc, train_uar = model.evaluate(x_train, t_train, metrics=['loss', 'accuracy', 'uar'])
+    print('train_loss: %f' % train_loss) # loss value
+    print('train_acc: %f' % train_acc) # accuracy
+    print('train_uar: %f' % train_uar) # uar (unweighted average recall)
 
     # ===============================
     # Validation
     # ===============================
-    val_loss, val_acc = model.evaluate(x_test, t_test, metrics=['loss', 'accuracy'])
+    val_loss, val_acc, val_uar = model.evaluate(x_test, t_test, metrics=['loss', 'accuracy', 'uar'])
     print('val_loss: %f' % val_loss)
     print('val_acc: %f' % val_acc)
+    print('val_uar: %f' % val_uar)
 
     # ===============================
     # Prediction
